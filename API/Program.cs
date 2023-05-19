@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<StoreContext>(opt =>
 });
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
@@ -26,6 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
 
 app.UseAuthorization();
 
@@ -39,7 +43,7 @@ try
 {
     await context.Database.MigrateAsync();
     await StoreContextSeed.SeedAsync(context);
-    
+
 }catch(Exception ex)
 {
     logger.LogError(ex, "An Error occured during Migration ");
