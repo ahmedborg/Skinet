@@ -8,6 +8,7 @@ using System.Reflection.Metadata.Ecma335;
 using Core.Specifications;
 using API.Dtos;
 using AutoMapper;
+using API.Helpers;
 
 namespace API.Controllers
 {
@@ -28,13 +29,20 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>>  GetProducts()
+        public async Task<ActionResult<Pagination<ProductToReturnDto>>>  GetProducts(
+            [FromQuery]ProductSpecParams productParams)
         { 
-            var spec = new ProductWithTypesAndBrandsSpecification();
+            var spec = new ProductWithTypesAndBrandsSpecification(productParams);
+
+            var countSpec = new ProductWithFilterForCountSpecification(productParams);
+            var totalItems = await _productRepo.CountAsync(countSpec);
            // var products = await _repo.GetProductsAsync();
            var products = await _productRepo.ListAsync(spec);
 
-           return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
+           var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+
+           return Ok(new Pagination<ProductToReturnDto>(productParams.PageIdex,
+                        productParams.PageSize, totalItems, data));
 
             // return products.Select(product => new ProductToReturnDto 
             // {
