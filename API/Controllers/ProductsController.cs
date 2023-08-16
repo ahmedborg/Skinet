@@ -41,7 +41,7 @@ namespace API.Controllers
 
            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
 
-           return Ok(new Pagination<ProductToReturnDto>(productParams.PageIdex,
+           return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex,
                         productParams.PageSize, totalItems, data));
 
             // return products.Select(product => new ProductToReturnDto 
